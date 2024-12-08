@@ -1,6 +1,5 @@
 import numpy as np
 import random
-import moviepy
 import pygame as pg
 from pygame.locals import *
 import datetime as dt
@@ -10,43 +9,15 @@ from math import fabs
 import os
 import time
 import threading
-
-
-from numba import jit
-
-
 from data._func.CashMaster import CASH_MASTER
 
-
 cm = CASH_MASTER(Mb=500000000, Direstory='data\cash', Traceback=False)
-
-from tqdm import tqdm
-from matplotlib import pyplot as plt
-from cycler import cycler
-
-
-
-
-
 try:
     RECORD = cm.Call('Record')
 except:
     RECORD = 0
+
 pg.init()
-
-
-
-
-
-
-import numpy as np
-import os
-
-
-
-
-
-
 
 def fill(S, color):
     surface = S.copy()
@@ -64,10 +35,6 @@ def fill(S, color):
             surface.set_at((x, y), pg.Color(r, g, b, a))
     return surface
 
-
-
-
-
 def change_color(img, c1, c2, p=0, noisy_bool=True):
     img = img.convert("RGBA")
     pixdata = np.array(img)
@@ -79,14 +46,8 @@ def change_color(img, c1, c2, p=0, noisy_bool=True):
                            pixdata[x, y][2] - p < c1[2]
                            and c1[2] < pixdata[x, y][2] + p):
                 pixdata[x, y] = list(c2) + [pixdata[x, y][-1]]
+    return Image.fromarray(pixdata)
 
-    
-    
-    #img = Image.fromarray(pixdata)
-    return Image.fromarray(pixdata)#img
-
-
-#'freesansbold.ttf'
 class BUTTON:
     def __init__(self,
                  tfont='freesansbold.ttf',
@@ -128,7 +89,6 @@ class BUTTON:
     def press(self):
         if self.func:
             self.func()
-
 
 class GAME:
     def __init__(self,
@@ -178,9 +138,6 @@ class GAME:
 
         self.full = fullscreen
 
-
-        #if self.color != (255, 255, 255):
-        
         self.bright = [1, min(self.size)//5, 1] # 
         self.bb = (1-0.9)/self.bright[1]
         self.block_img = Image.open(self.block_name)
@@ -190,8 +147,6 @@ class GAME:
         size = self.block_img.size
         data = self.block_img.tobytes()
         self.block_img = pg.image.fromstring(data, size, mode)
-        #else:
-            #self.block_img = pg.image.load(self.block_name)
 
         self.food_bonus = np.sum(
             (np.array(list(map(lambda x: 1 + x / sum(self.fs), self.fs)))**2))
@@ -213,7 +168,6 @@ class GAME:
             start_position = start_position + [self.block_img]
 
         self.sb = np.array(start_position).reshape(1, 4)  # snake_blocks
-        #print(self.sb)
         self.speed = speed
         self.start_food = start_food
         if start_food:
@@ -231,8 +185,6 @@ class GAME:
             self.d_scal = self.display_size[0] / 1920
         else:
             self.d_scal = self.display_size[1] / 1080
-
-        #self.block_scale = min(self.display_size) // (self.size[0]+self.indent*2)
         if self.display_size[0] / (self.size[0] +
                                    self.indent * 2) <= self.display_size[1] / (
                                        self.size[1] + self.indent * 2):
@@ -251,7 +203,6 @@ class GAME:
         data = self.Fblock.tobytes()
         self.Fblock = pg.image.fromstring(data, size, mode)
 
-
         self.t_b_e = True
         self.t_b_s = True
         self.t_b_m = True
@@ -262,12 +213,9 @@ class GAME:
         self.br_v = 1
         self.get_brightness()
 
-
-
         self.block_indent = 0.1
         self.food_indent = 0.2
         self.min_brightness = 0.4
-        #print('1:', self.sb)
 
     def get_brightness(self):
         self.bright = [1, min(self.size)//5, 1]
@@ -282,8 +230,6 @@ class GAME:
         for _ in range(int(self.bright[1])):
             self.block_brs.append( fill(self.block_img, list(map(lambda x: round(x*(br)), self.color))) )
             br -= self.bb
-            #print(br)
-        #print('---------------')
 
     def get_record(self):
         global RECORD
@@ -312,8 +258,6 @@ class GAME:
 
         if self.FPS:
             self.cl.tick(self.FPS)
-        #if self.ai_show:
-        #self.blits()
 
     
     def spawn_food(self):
@@ -326,7 +270,6 @@ class GAME:
             	self.bonus += (1000 * self.stage * ((self.speed / 0.01)**1.75) *(self.n_blocks**1.25) * ((50**2 + 50**2)**0.5) /((self.size[0]**2 + self.size[1]**2)**0.5))/(self.food_bonus**2)*(self.fg/50)
             self.score += self.bonus
             self.bonus = 0
-            #print(self.bonus)
             for i in range(
                     min(int(self.fg), (self.size[0] + 2) * (self.size[1] * 2) -
                         len(self.sb))):
@@ -348,8 +291,6 @@ class GAME:
                                                   [int(x) + S0,
                                                    int(y) + S1
                                                    ] == ss.tolist()[:2])
-
-                    #print([int(x), int(y)] in locks)
 
                     if int(x) + int(s) > self.size[0] + 1 or int(y) + int(
                             s) > self.size[1] + 1:
@@ -376,22 +317,10 @@ class GAME:
     def new_block(self):
         if len(self.sb)%self.bright[1]==0:
             self.bright[0] *= -1
-        #if self.bright[0] > 0:
-            #self.bright[2]-=self.bb
-        #else:
-            #self.bright[2]+=self.bb
-            #print()
-        
-            #print((1*self.br_v))
-        
         self.br_now += (1*self.br_v)
-        
         if (self.br_now >= len(self.block_brs)-1) or (self.br_now <= 0):
             self.br_v *=-1
         
-
-
-        #print(self.sb)
         if self.sb[-1][2] == 0:  #up
             new_pos = [self.sb[-1][0], self.sb[-1][1] + 1]
         elif self.sb[-1][2] == 1:  #right
@@ -400,15 +329,6 @@ class GAME:
             new_pos = [self.sb[-1][0], self.sb[-1][1] - 1]
         elif self.sb[-1][2] == 3:  #left
             new_pos = [self.sb[-1][0] + 1, self.sb[-1][1]]
-        #print(len(self.block_brs))
-        #print(round(self.bright[2]/self.bb))
-        #print(self.block_brs[round(self.bright[2]/self.bb)])
-        #print(self.block_img)
-        #print(int( (1 - self.bright[2])/self.bb))
-        #print(self.br_now)
-        #print(len(self.block_brs))
-        #print(self.br_now, 'G')
-        
         self.sb = np.append(self.sb, [[new_pos[0], new_pos[1], self.sb[-1][2],  self.block_brs[self.br_now]  ]], axis=0) #self.block_brs[round(self.bright[2]/self.bb)]  ]] #fill(self.block_img, list(map(lambda x: round(x*self.bright[2]), self.color)))
 
     def change_vector(self, new_v):
@@ -457,7 +377,6 @@ class GAME:
             sys.exit()
             self.runbool = False
         if event.type == pg.KEYDOWN:
-            #self.firststart()
             if event.key == K_ESCAPE:
                 pg.quit()
                 self.runbool = False
@@ -566,9 +485,6 @@ class GAME:
             3)
 
     def blit_blocks(self):
-        #self.Sblock = pg.transform.scale(self.block_img,
-                                         #(self.block_scale, self.block_scale))
-        #print(self.sb)
         z=0
         try:
             br_d = (1-self.min_brightness)/(len(self.sb)-1)
@@ -595,19 +511,6 @@ class GAME:
                  )))
             z+=1
 
-
-
-            #s_block = pg.transform.scale(bl[3], (self.block_scale, self.block_scale))
-
-            """self.screen.blit(
-                                                    s_block,
-                                                    ((self.display_size[0] - self.block_scale *
-                                                      (self.size[0] + self.indent * 2)) // 2 + self.block_scale *
-                                                     (x + self.indent),
-                                                     (self.display_size[1] - self.block_scale *
-                                                      (self.size[1] + self.indent * 2)) // 2 + self.block_scale *
-                                                     (y + self.indent)))"""
-
     def blit_feed(self):
         self.Fblock = pg.transform.scale(self.Fblock,
                                          (self.block_scale, self.block_scale))
@@ -626,19 +529,6 @@ class GAME:
                  self.block_scale  *(s-(2*self.food_indent)),
                  self.block_scale  *(s-(2*self.food_indent)
                  )))
-
-
-
-            """self.screen.blit(
-                                                    pg.transform.scale(
-                                                        self.Fblock,
-                                                        (int(self.block_scale * s), int(self.block_scale * s))),
-                                                    (int((self.display_size[0] - self.block_scale *
-                                                          (self.size[0] + self.indent * 2)) // 2 +
-                                                         self.block_scale * (x + self.indent)),
-                                                     int((self.display_size[1] - self.block_scale *
-                                                          (self.size[1] + self.indent * 2)) // 2 +
-                                                         self.block_scale * (y + self.indent))))"""
 
     def blits(self):
         self.screen.fill(self.background)
@@ -683,10 +573,6 @@ class GAME:
                 if self.score > RECORD:
                     self.stats['Record'].text = 'Record: %s' % (int(
                         self.score // 1))
-
-                #if self.n_blocks:
-                    #for k in range(int(self.n_blocks)):
-                        #self.new_block()
                 self.f_plus += self.n_blocks
 
                 df.append(i)
@@ -701,12 +587,7 @@ class GAME:
                 self.RECORD = self.score
             if RECORD < self.RECORD:
                 RECORD = self.RECORD
-            
-
-            #print(self.RECORD)
             cm.Cash(self.RECORD, 'Record')
-            #print(cm.Call('Record'))
-            #print(cm.Call('Load_config'))
 
     def quit(self):
         pg.quit()
@@ -727,7 +608,6 @@ class GAME:
             sys.exit()
             runbool = False
         if event.type == pg.KEYDOWN:
-            #self.firststart()
             if event.key == K_ESCAPE:
                 pg.quit()
                 self.runbool = False
@@ -760,18 +640,13 @@ class GAME:
         self.runbool = False
 
     def new_start(self):
-        '''self.__init__(window_name=self.name, FPS=self.FPS, background=self.background, color=self.color, size=self.size, indent=self.indent, 
-                                         display_size=self.display_size,  start_position=self.start_position, speed=self.speed, start_food=self.start_food, food_gen=self.fg, 
-                                         food_size_chance=self.fs, food_color=self.food_color, block_type=self.block_type, fullscreen=self.full, label=self.label)'''
-
         if not (self.start_position):
             self.new_v = 0
             start_position = [self.size[0] // 2 + 1, self.size[1] // 2 + 1, 0, self.block_img]
         else:
             self.new_v = self.start_position[-1]
             start_position = self.start_position
-        self.sb = np.array(start_position).reshape(1, 4)  # snake_blocks
-        #print(self.sb)
+        self.sb = np.array(start_position).reshape(1, 4)
 
         if self.start_food:
             self.feed = np.array(self.start_food).reshape(1, 3)
@@ -791,8 +666,6 @@ class GAME:
         self.t_b_s = True
         self.t_b_m = True
         self.t_b_b = True
-
-        
 
         self.run()
 
@@ -817,7 +690,6 @@ class GAME:
         self.Buttons.append(BUTTON(**mn_conf))
         self.Buttons[0].pressed = True
         #SETTING
-        #print(100*self.d_scal)
         mn_conf = {
             'tfont': 'freesansbold.ttf',
             'size': int(100 * self.d_scal // 1),
@@ -839,7 +711,6 @@ class GAME:
             'func': self.menu_exit
         }
         self.Buttons.append(BUTTON(**mn_conf))
-        #print('3:', self.sb)
         self.runbool = True
         while self.runbool:
             if self.FPS:
@@ -948,10 +819,6 @@ class GAME:
 
         self.end_stats['Score'] = BUTTON(**mn_conf)
 
-
-        
-        
-
         self.time = 0
         self.blits()
         if self.t_b_m:
@@ -977,12 +844,12 @@ class GAME:
                     self.t_b_e = False
                     my_thread = threading.Thread(target=self.eat, daemon=True, args=())
                     my_thread.start()
-                #self.eat()
+                
                 if self.t_b_s:
                     self.t_b_s = False
                     my_thread = threading.Thread(target=self.spawn_food, daemon=True, args=())
                     my_thread.start()
-                #print('h')
+                #self.eat()
                 #self.spawn_food()
                 #self.move_loop()
 
@@ -1008,9 +875,6 @@ class GAME:
             else:
                 time.sleep(0.1)
         self.runbool = True
-
-    #pg.quit()
-
 
 #################################################################################
 arguments = {
@@ -1053,7 +917,6 @@ try:
 except:
     model = False
 
-
 def start():
     global RECORD
     try:
@@ -1064,7 +927,6 @@ def start():
 
     G.window_init()
     G.menu()
-
 
 try:
     if cm.Call('Load_config'):
