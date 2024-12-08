@@ -22,8 +22,7 @@ git clone https://github.com/saigedoc/zmeika
 pip install -r requirements
 python start.py
 ```
-
-Убедитесь
+Тесты были проведены только на версии Python 3.10 на Windows 10.
 
 ## Настройки
 
