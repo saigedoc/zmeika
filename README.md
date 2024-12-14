@@ -19,7 +19,7 @@
 ## Как запустить?
 ```bash
 git clone https://github.com/saigedoc/zmeika
-pip install -r requirements
+pip install -r requirements.txt
 python start.py
 ```
 Тесты были проведены только на версии Python 3.10 на Windows 10.
